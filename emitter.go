@@ -66,7 +66,7 @@ func (e *Emitter) Emit(topic string, payload interface{}) error {
 	return err
 }
 
-// Emit emits a message to a specific topic using nsq producer, but does not wait for
+// EmitAsync emits a message to a specific topic using nsq producer, but does not wait for
 // the response from `nsqd`. Returns an error if encoding payload fails and
 // logs to console if an error occurred while publishing the message.
 func (e *Emitter) EmitAsync(topic string, payload interface{}) error {
@@ -170,15 +170,18 @@ func (e *Emitter) createTopic(topic string) error {
 }
 
 func newBreakerSettings(c Breaker) gobreaker.Settings {
-	return gobreaker.Settings{
+	s := gobreaker.Settings{
 		Name:     "nsq-emitter-circuit-breaker",
 		Interval: c.Interval,
 		Timeout:  c.Timeout,
 		ReadyToTrip: func(counts gobreaker.Counts) bool {
 			return counts.ConsecutiveFailures > c.Threshold
 		},
-		OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
-			c.OnStateChange(name, from.String(), to.String())
-		},
 	}
+	if c.OnStateChange != nil {
+		s.OnStateChange = func(name string, from gobreaker.State, to gobreaker.State) {
+			c.OnStateChange(name, from.String(), to.String())
+		}
+	}
+	return s
 }
