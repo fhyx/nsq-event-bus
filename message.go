@@ -8,13 +8,11 @@ import (
 
 // Message carries nsq.Message fields and methods and
 // adds extra fields for handling messages internally.
-type (
-	Message struct {
-		*nsq.Message
-		ReplyTo string
-		Payload []byte
-	}
-)
+type Message struct {
+	*nsq.Message
+	ReplyTo string `json:"replyTo"`
+	Payload []byte `json:"payload"`
+}
 
 // NewMessage returns a new bus.Message.
 func NewMessage(p []byte, r string) *Message {
@@ -24,4 +22,14 @@ func NewMessage(p []byte, r string) *Message {
 // DecodePayload deserializes data (as []byte) and creates a new struct passed by parameter.
 func (m *Message) DecodePayload(v interface{}) (err error) {
 	return json.Unmarshal(m.Payload, v)
+}
+
+func encodeMessage(payload interface{}, replyTo string) ([]byte, error) {
+	p, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	message := NewMessage(p, replyTo)
+	return json.Marshal(message)
 }

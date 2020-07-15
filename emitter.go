@@ -54,7 +54,7 @@ func (e *Emitter) Emit(topic string, payload interface{}) error {
 		return ErrTopicRequired
 	}
 
-	body, err := e.encodeMessage(payload, "")
+	body, err := encodeMessage(payload, "")
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func (e *Emitter) EmitAsync(topic string, payload interface{}) error {
 		return ErrTopicRequired
 	}
 
-	body, err := e.encodeMessage(payload, "")
+	body, err := encodeMessage(payload, "")
 	if err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func (e *Emitter) Request(topic string, payload interface{}, handler HandlerFunc
 		return err
 	}
 
-	body, err := e.encodeMessage(payload, replyTo)
+	body, err := encodeMessage(payload, replyTo)
 	if err != nil {
 		return err
 	}
@@ -135,16 +135,6 @@ func (e *Emitter) Request(topic string, payload interface{}, handler HandlerFunc
 	})
 
 	return err
-}
-
-func (e *Emitter) encodeMessage(payload interface{}, replyTo string) ([]byte, error) {
-	p, err := json.Marshal(payload)
-	if err != nil {
-		return nil, err
-	}
-
-	message := NewMessage(p, replyTo)
-	return json.Marshal(message)
 }
 
 func (e *Emitter) genReplyQueue() (string, error) {
