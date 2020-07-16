@@ -24,6 +24,12 @@ func (m *Message) DecodePayload(v interface{}) (err error) {
 	return json.Unmarshal(m.Payload, v)
 }
 
+func decodeMessage(message *nsq.Message) (m *Message, err error) {
+	m = &Message{Message: message}
+	err = json.Unmarshal(message.Body, m)
+	return
+}
+
 func encodeMessage(payload interface{}, replyTo string) ([]byte, error) {
 	p, err := json.Marshal(payload)
 	if err != nil {

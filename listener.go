@@ -1,7 +1,6 @@
 package bus
 
 import (
-	"encoding/json"
 	"errors"
 
 	nsq "github.com/nsqio/go-nsq"
@@ -56,12 +55,12 @@ func On(lc ListenerConfig) error {
 
 func handleMessage(lc ListenerConfig) nsq.HandlerFunc {
 	return nsq.HandlerFunc(func(message *nsq.Message) error {
-		m := Message{Message: message}
-		if err := json.Unmarshal(message.Body, &m); err != nil {
+		m, err := decodeMessage(message)
+		if err != nil {
 			return err
 		}
 
-		res, err := lc.HandlerFunc(&m)
+		res, err := lc.HandlerFunc(m)
 		if err != nil {
 			return err
 		}
