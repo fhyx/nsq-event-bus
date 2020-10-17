@@ -12,6 +12,7 @@ type Message struct {
 	*nsq.Message
 	ReplyTo string `json:"replyTo"`
 	Payload []byte `json:"payload"`
+	Topic   string `json:"-"`
 }
 
 // NewMessage returns a new bus.Message.

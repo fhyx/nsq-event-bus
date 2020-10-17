@@ -59,6 +59,7 @@ func handleMessage(lc ListenerConfig) nsq.HandlerFunc {
 		if err != nil {
 			return err
 		}
+		m.Topic = lc.Topic
 
 		res, err := lc.HandlerFunc(m)
 		if err != nil {
